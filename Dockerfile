@@ -19,23 +19,9 @@ RUN apt-get update -qq \
     build-essential \
     cmake \
     g++ \
-    # install python 2
-    python \
-    python-dev \
-    python-pip \
-    python-setuptools \
-    python-virtualenv \
-    python-wheel \
-    pkg-config \
     # requirements for numpy
     libopenblas-base \
-    python-numpy \
-    python-scipy \
     # requirements for keras
-    python-h5py \
-    python-yaml \
-    python-pydot \
-    python-tk \
 		libopenblas-dev \
 		liblapack-dev \
 		libssl-dev \
@@ -65,28 +51,26 @@ RUN apt-get update -qq \
 	 r-cran-car \
 	 r-cran-rcolorbrewer \
 	 r-cran-fastcluster \		
- 		python-numpy \
-		python-scipy \
-		python-nose \
-		python-h5py \
-		python-skimage \
-		python-matplotlib \
-		python-pandas \
-		python-sklearn \
-		python-sympy \
+ 		python3-numpy \
+		python3-pillow \
+		python3-pandas \
+		python3-sklearn \
+		python3 python3-dev     python3-pip     python3-setuptools   \
+		python3-virtualenv     python3-wheel     pkg-config python3-h5py  python3-yaml python3-pydot \
 && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip
 
-ARG TENSORFLOW_VERSION=1.1.0
+ARG TENSORFLOW_VERSION=1.5.0
 ARG TENSORFLOW_DEVICE=cpu
 ARG TENSORFLOW_APPEND=
-RUN pip --no-cache-dir install https://storage.googleapis.com/tensorflow/linux/${TENSORFLOW_DEVICE}/tensorflow${TENSORFLOW_APPEND}-${TENSORFLOW_VERSION}-cp27-none-linux_x86_64.whl
+# RUN pip --no-cache-dir install https://storage.googleapis.com/tensorflow/linux/${TENSORFLOW_DEVICE}/tensorflow${TENSORFLOW_APPEND}-${TENSORFLOW_VERSION}-cp27-none-linux_x86_64.whl
+RUN pip3 --no-cache-dir install https://storage.googleapis.com/tensorflow/linux/${TENSORFLOW_DEVICE}/tensorflow${TENSORFLOW_APPEND}-${TENSORFLOW_VERSION}-cp35-cp35m-linux_x86_64.whl
 
 ARG KERAS_VERSION=2.2.5
 ENV KERAS_BACKEND=tensorflow
-RUN pip --no-cache-dir install --no-dependencies git+https://github.com/fchollet/keras.git@${KERAS_VERSION}
+RUN pip3 --no-cache-dir install --no-dependencies git+https://github.com/fchollet/keras.git@${KERAS_VERSION}
 
 # Install OpenCV
 RUN git clone --depth 1 https://github.com/opencv/opencv.git /root/opencv && \
