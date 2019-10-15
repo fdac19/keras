@@ -63,12 +63,6 @@ RUN apt-get update -qq \
 
 RUN pip install --upgrade pip
 
-ARG TENSORFLOW_VERSION=1.5.0
-ARG TENSORFLOW_DEVICE=cpu
-ARG TENSORFLOW_APPEND=
-# RUN pip --no-cache-dir install https://storage.googleapis.com/tensorflow/linux/${TENSORFLOW_DEVICE}/tensorflow${TENSORFLOW_APPEND}-${TENSORFLOW_VERSION}-cp27-none-linux_x86_64.whl
-RUN pip3 --no-cache-dir install https://storage.googleapis.com/tensorflow/linux/${TENSORFLOW_DEVICE}/tensorflow${TENSORFLOW_APPEND}-${TENSORFLOW_VERSION}-cp35-cp35m-linux_x86_64.whl
-
 ARG KERAS_VERSION=2.2.5
 ENV KERAS_BACKEND=tensorflow
 RUN pip3 --no-cache-dir install --no-dependencies git+https://github.com/fchollet/keras.git@${KERAS_VERSION}
