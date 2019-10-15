@@ -1,6 +1,7 @@
 # docker-keras - Keras in Docker for reproducible deep learning
 
-FROM ubuntu
+FROM tensorflow/tensorflow:1.15
+
 MAINTAINER audrism  <audris@mockus.org>
 
 # install debian packages
