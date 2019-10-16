@@ -1,31 +1,21 @@
-# only use it to generate the resnet features
-#how to run: python3 path2ResNetFeatures.py --img_path some_imgs  > resnet_feautres_filename
-import keras
-from keras.applications import ResNet50
-from keras.applications.resnet50 import preprocess_input
-from keras.models import Sequential
-from keras.layers import Dense, Flatten, GlobalAveragePooling2D
+from tensorflow.keras.applications import ResNet50
+from tensorflow.keras.applications.resnet50 import preprocess_input
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten, GlobalAveragePooling2D
 import numpy as np
-from keras.models import Model
+from tensorflow.keras.models import Model
 import cv2
 import sys
 import csv
-import argparse
 import glob
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--img_path', type = str)
 
-args = parser.parse_args()
-
-imgs_path = args.img_path
-
+imgs_path = "."
 
 img_size = 224
-resnet_weigth_path = 'resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5'
+resnet_weigth_path = './resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5'
 
 clustering_model = Sequential()
-
 clustering_model.add(ResNet50(include_top = False, pooling='ave', weights = resnet_weigth_path))
 clustering_model.layers[0].trainable = False
 
