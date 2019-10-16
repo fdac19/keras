@@ -1,6 +1,6 @@
 # docker-keras - Keras in Docker for reproducible deep learning
 
-FROM tensorflow/tensorflow:1.15
+FROM tensorflow/tensorflow:1.15.0rc2
 
 MAINTAINER audrism  <audris@mockus.org>
 
