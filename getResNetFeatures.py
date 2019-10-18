@@ -1,3 +1,4 @@
+import pymongo
 from tensorflow.keras.applications import ResNet50
 from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.models import Sequential
@@ -23,7 +24,8 @@ clustering_model.layers[0].trainable = False
 clustering_model.compile(optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
 
 missed_imgs = []
-    
+
+f.
 for path in glob.glob(imgs_path + '/*.jpg'):
     correct_path = path
     row = []
