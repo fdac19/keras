@@ -22,6 +22,7 @@ RUN apt-get update -qq \
 
 # manually update numpy
 RUN pip --no-cache-dir install -U numpy==1.13.3
+RUN pip --no-cache-dir install -U pandas
 
 ARG TENSORFLOW_VERSION=1.5.0
 ARG TENSORFLOW_DEVICE=cpu
