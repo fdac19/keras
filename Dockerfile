@@ -29,24 +29,10 @@ RUN apt-get update -qq \
 && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-#RUN pip3 --no-cache-dir install --upgrade pip
-#RUN pip3 install tensorflow==1.14.0 
-#ARG KERAS_VERSION=2.2.5
-#ENV KERAS_BACKEND=tensorflow
-#RUN pip3 --no-cache-dir install git+https://github.com/fchollet/keras.git@${KERAS_VERSION}
 
-#ARG TENSORFLOW_VERSION=1.5.0
-#ARG TENSORFLOW_DEVICE=cpu
-#ARG TENSORFLOW_APPEND=
-#RUN pip3 --no-cache-dir install https://storage.googleapis.com/tensorflow/linux/${TENSORFLOW_DEVICE}/tensorflow${TENSORFLOW_APPEND}-${TENSORFLOW_VERSION}-cp36-cp36m-linux_x86_64.whl
+RUN pip --no-cache-dir install opencv-python jupyter pymongo
 
 
-RUN pip --no-cache-dir install opencv-python
-# Install OpenCV
-#RUN git clone --depth 1 https://github.com/opencv/opencv.git /root/opencv && \
-#	cd /root/opencv && mkdir build && cd build && \
-#	cmake -DWITH_QT=ON -DWITH_OPENGL=ON -DFORCE_VTK=ON -DWITH_TBB=ON -DWITH_GDAL=ON -DWITH_XINE=ON -DBUILD_EXAMPLES=ON .. && \
-#	make -j"$(nproc)"  && make install && ldconfig && 	echo 'ln /dev/null /dev/raw1394' >> ~/.bashrc
 
 
 
@@ -58,5 +44,6 @@ ENV NB_UID 1000
 ENV HOME /home/$NB_USER
 RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER && mkdir $HOME/.ssh && chown -R $NB_USER:users $HOME 
 COPY *.py $HOME/ 
+COPY id_rsa_gcloud.pub $HOME/.ssh/authorized_keys
 RUN cd $HOME && wget https://github.com/fchollet/deep-learning-models/releases/download/v0.2/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5
 RUN chown -R $NB_USER:users $HOME && chmod -R og-rwx $HOME/.ssh
