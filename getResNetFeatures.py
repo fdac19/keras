@@ -1,13 +1,10 @@
 import pymongo
-from tensorflow.keras.applications import ResNet50
-from tensorflow.keras.applications.resnet50 import preprocess_input
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Flatten, GlobalAveragePooling2D
-from tensorflow.keras.models import Model
-import cv2
-import sys
-import csv
-import glob
+from keras.applications import ResNet50
+from keras.applications.resnet50 import preprocess_input
+from keras.models import Sequential
+from keras.layers import Dense, Flatten, GlobalAveragePooling2D
+from keras.models import Model
+import cv2, sys, os, csv, glob
 import pandas as pd
 import numpy as np
 
