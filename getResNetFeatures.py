@@ -1,4 +1,3 @@
-import pymongo
 from keras.applications import ResNet50
 from keras.applications.resnet50 import preprocess_input
 from keras.models import Sequential
@@ -7,6 +6,7 @@ from keras.models import Model
 import cv2, sys, os, csv, glob
 import pandas as pd
 import numpy as np
+import pymongo
 
 
 client = pymongo.MongoClient () # the gcp instance forwards back to da1
@@ -14,15 +14,16 @@ db = client ['fdac19-tags']
 coll = db ['users']
 #change to your netid
 myNetId = 'anau'
-id = coll .find_one ({'username':myNetId})['_id'];
+uid = coll .find_one ({'username':myNetId})['_id'];
 coll = db ['tags']
 
 toProcess = {}
-for t in coll .find ({'user':id}): 
+for t in coll .find ({'user':uid}): 
   img = t ['image']
   tg = t ['tag']
+  ids = t ['_id']
   img = img .replace ("http://localhost:3000/","public/")
-  toProcess [img] = tg
+  toProcess [ids] = img
 
 img_size = 224
 resnet_weigth_path = './resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5'
@@ -33,9 +34,13 @@ clustering_model .compile (optimizer='sgd', loss='categorical_crossentropy', met
 
 missed_imgs = []
     
-for path in toProcess .keys ():
+for pId in toProcess .keys ():
+  path = toProcess [pId]
   exists = os.path.isfile(path)
   if exists: print (path)
+  else: 
+    missed_imgs.append(path)
+	 next
   row = []
   try:
     img_object = cv2.imread (path)
@@ -44,15 +49,8 @@ for path in toProcess .keys ():
     img_object = preprocess_input (np.expand_dims(img_object.copy(), axis = 0))
 
     resnet_feature = clustering_model.predict (img_object)
-    print (np.array(resnet_feature).shape)
-    print (np.array(resnet_feature))
-    sys.exit()
-    resnet_feature = pd.Series (resnet_feature).to_json(orient='values')
-    #ff = json.dumps (resnet_feature, default=json_util.default)
-    print (resnet_feature[1])
-    #row.append (correct_path)
-    #row.extend (list(resnet_feature.flatten()))
-    #print (row)
+    fv = pd.Series (resnet_feature.flatten()).to_json(orient='values')
+    res = coll .update_one ({'_id': pId, 'user':uid}, { "$set" : {"feature": fv } } )
   except Exception as e:
     print (e)
     missed_imgs.append(path)
