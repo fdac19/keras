@@ -1,8 +1,8 @@
-from keras.applications import ResNet50
-from keras.applications.resnet50 import preprocess_input
-from keras.models import Sequential
-from keras.layers import Dense, Flatten, GlobalAveragePooling2D
-from keras.models import Model
+from tensorflow.keras.applications import ResNet50
+from tensorflow.keras.applications.resnet50 import preprocess_input
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten, GlobalAveragePooling2D
+from tensorflow.keras.models import Model
 import cv2, sys, os, csv, glob
 import pandas as pd
 import numpy as np
@@ -27,7 +27,7 @@ for t in coll .find ({'user':uid}):
 
 img_size = 224
 clustering_model = Sequential ()
-clustering_model .add (ResNet50(include_top = False, pooling='ave', weights = 'imagenet'))
+clustering_model .add (ResNet50(include_top = Treu, pooling='ave', weights = 'imagenet'))
 clustering_model .layers[0] .trainable = False
 clustering_model .compile (optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
 
@@ -47,8 +47,6 @@ for pId in toProcess .keys ():
     img_object = np.array (img_object, dtype = np.float64)
     img_object = preprocess_input (np.expand_dims(img_object.copy(), axis = 0))
     resnet_feature = clustering_model.predict (img_object)
-    print (resnet_feature.shape)
-    sys.exit()
     fv = pd.Series (resnet_feature.flatten()).to_json(orient='values')
     res = coll .update_one ({'_id': pId, 'user':uid}, { "$set" : {"feature": fv } } )
     print (path)
