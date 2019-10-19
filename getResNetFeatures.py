@@ -7,7 +7,8 @@ import cv2, sys, os, csv, glob
 import pandas as pd
 import numpy as np
 import pymongo
-
+from StringIO import StringIO
+from bson.binary import Binary
 
 client = pymongo.MongoClient () # the gcp instance forwards back to da1
 db = client ['fdac19-tags']
@@ -27,7 +28,7 @@ for t in coll .find ({'user':uid}):
 
 img_size = 224
 clustering_model = Sequential ()
-clustering_model .add (ResNet50(include_top = Treu, pooling='ave', weights = 'imagenet'))
+clustering_model .add (ResNet50(include_top = True, pooling='ave', weights = 'imagenet'))
 clustering_model .layers[0] .trainable = False
 clustering_model .compile (optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
 
@@ -36,19 +37,27 @@ missed_imgs = []
 for pId in toProcess .keys ():
   path = toProcess [pId]
   exists = os.path.isfile(path)
-  if exists: print (path)
+  if exists:
+    sz = os.path.getsize(path)
+    if (sz < 15000000L):
+      print (path)
+    else:
+      missed_imgs.append(path)
+      next
   else: 
     missed_imgs.append(path)
     next
   row = []
   try:
+    imf = StringIO (open(path,'rb').read())
+    bif = Binary (imf.getvalue())
     img_object = cv2.imread (path)
     img_object = cv2.resize (img_object, (img_size, img_size))
     img_object = np.array (img_object, dtype = np.float64)
     img_object = preprocess_input (np.expand_dims(img_object.copy(), axis = 0))
     resnet_feature = clustering_model.predict (img_object)
     fv = pd.Series (resnet_feature.flatten()).to_json(orient='values')
-    res = coll .update_one ({'_id': pId, 'user':uid}, { "$set" : {"feature": fv } } )
+    res = coll .update_one ({'_id': pId, 'user':uid}, { "$set" : {"feature": fv, "imgCont": bif } } )
     print (path)
   except Exception as e:
     print (e)
