@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:latest-devel
+FROM tensorflow/tensorflow
 
 MAINTAINER audrism  <audris@mockus.org> 
 
