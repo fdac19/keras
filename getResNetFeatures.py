@@ -26,9 +26,8 @@ for t in coll .find ({'user':uid}):
   toProcess [ids] = img
 
 img_size = 224
-resnet_weigth_path = './resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5'
 clustering_model = Sequential ()
-clustering_model .add (ResNet50(include_top = False, pooling='ave', weights = resnet_weigth_path))
+clustering_model .add (ResNet50(include_top = False, pooling='ave', weights = 'imagenet'))
 clustering_model .layers[0] .trainable = False
 clustering_model .compile (optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
 
@@ -47,8 +46,9 @@ for pId in toProcess .keys ():
     img_object = cv2.resize (img_object, (img_size, img_size))
     img_object = np.array (img_object, dtype = np.float64)
     img_object = preprocess_input (np.expand_dims(img_object.copy(), axis = 0))
-
     resnet_feature = clustering_model.predict (img_object)
+    print (resnet_feature.shape)
+    sys.exit()
     fv = pd.Series (resnet_feature.flatten()).to_json(orient='values')
     res = coll .update_one ({'_id': pId, 'user':uid}, { "$set" : {"feature": fv } } )
     print (path)

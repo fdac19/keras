@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:1.15.0
+FROM tensorflow/tensorflow:1.5.0
 
 MAINTAINER audrism  <audris@mockus.org> 
 
@@ -14,7 +14,7 @@ RUN apt-get update -qq \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-RUN pip --no-cache-dir install pandas opencv-python jupyter pymongo
+RUN pip --no-cache-dir install keras==2.1.4 pandas opencv-python jupyter pymongo
 
 
 RUN if [ ! -d /var/run/sshd ]; then mkdir /var/run/sshd; chmod 0755 /var/run/sshd; fi
