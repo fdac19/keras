@@ -40,7 +40,7 @@ for pId in toProcess .keys ():
   if exists: print (path)
   else: 
     missed_imgs.append(path)
-	 next
+    next
   row = []
   try:
     img_object = cv2.imread (path)
@@ -51,6 +51,7 @@ for pId in toProcess .keys ():
     resnet_feature = clustering_model.predict (img_object)
     fv = pd.Series (resnet_feature.flatten()).to_json(orient='values')
     res = coll .update_one ({'_id': pId, 'user':uid}, { "$set" : {"feature": fv } } )
+    print (path)
   except Exception as e:
     print (e)
     missed_imgs.append(path)
