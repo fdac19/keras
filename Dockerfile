@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow
+FROM tensorflow/tensorflow:1.15.0
 
 MAINTAINER audrism  <audris@mockus.org> 
 
