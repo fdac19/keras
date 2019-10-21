@@ -27,11 +27,11 @@ for t in coll .find ({'user':uid}):
   toProcess [ids] = img
 
 img_size = 224
-clustering_model = Sequential ()
-clustering_model .add (ResNet50(include_top = False, pooling='ave', weights = 'imagenet'))
-clustering_model .add (GlobalAveragePooling2D()) # get from 7x7x2048 to 2048
-clustering_model .layers[0] .trainable = False
-clustering_model .compile (optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
+model = Sequential ()
+model .add (ResNet50(include_top = False, pooling='ave', weights = 'imagenet'))
+model .add (GlobalAveragePooling2D()) # get from 7x7x2048 to 2048
+model .layers[0] .trainable = False
+model .compile (optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
 
 missed_imgs = []
     
@@ -56,7 +56,7 @@ for pId in toProcess .keys ():
     img_object = cv2.resize (img_object, (img_size, img_size))
     img_object = np.array (img_object, dtype = np.float64)
     img_object = preprocess_input (np.expand_dims(img_object.copy(), axis = 0))
-    resnet_feature = clustering_model.predict (img_object)
+    resnet_feature = model.predict (img_object)
     fv = pd.Series (resnet_feature.flatten()).to_json(orient='values')
     res = coll .update_one ({'_id': pId, 'user':uid}, { "$set" : {"feature": fv, "imgCont": bif } } )
     print (path)
