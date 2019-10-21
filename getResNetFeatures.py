@@ -28,7 +28,8 @@ for t in coll .find ({'user':uid}):
 
 img_size = 224
 clustering_model = Sequential ()
-clustering_model .add (ResNet50(include_top = True, pooling='ave', weights = 'imagenet'))
+clustering_model .add (ResNet50(include_top = False, pooling='ave', weights = 'imagenet'))
+clustering_model .add (GlobalAveragePooling2D()) # get from 7x7x2048 to 2048
 clustering_model .layers[0] .trainable = False
 clustering_model .compile (optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
 
