@@ -74,9 +74,8 @@ for pId in toProcess .keys ():
   else:
     missed_imgs.append(path)
     next
-  row = []
 
- try:
+  try:
     imf = StringIO(open(path,'rb').read())
     bif = Binary(imf.getvalue())
     img_object = cv2.imread (path)
