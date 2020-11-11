@@ -9,7 +9,7 @@ RUN apt-get update -qq \
     # install essentials
     git openssh-client \
     dbus openssh-server lsof sudo vim wget curl lsb-release tmux zip \
-    libsm6 libxext6 libfontconfig1 libxrender1 \
+    libsm6 libxext6 libfontconfig1 libxrender1 python-pip \
     r-recommended r-base-dev r-cran-car r-cran-rcolorbrewer r-cran-fastcluster \		
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
@@ -26,5 +26,6 @@ ENV HOME /home/$NB_USER
 RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER && mkdir $HOME/.ssh && chown -R $NB_USER:users $HOME 
 COPY *.py $HOME/ 
 COPY id_rsa_gcloud.pub $HOME/.ssh/authorized_keys
-RUN cd $HOME && wget https://github.com/fchollet/deep-learning-models/releases/download/v0.2/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5
+RUN pip install tensorflow==1.15.0
+# cd $HOME && wget https://github.com/fchollet/deep-learning-models/releases/download/v0.2/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5
 RUN chown -R $NB_USER:users $HOME && chmod -R og-rwx $HOME/.ssh
