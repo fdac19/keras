@@ -7,26 +7,11 @@ import cv2, sys, os, csv, glob
 import pandas as pd
 import numpy as np
 import pymongo
-from StringIO import StringIO
+from io  import StringIO
 from bson.binary import Binary
 import json
+from bson.objectid import ObjectId
 
-
-def extract_coordinates(img_info, width, height):
-    all_coor = json.loads(img_info['location'])[0]['geometry']
-    x1, y1, x2, y2 = [10000, 10000, 0, 0]
-    for point in all_coor['points']:
-        x = int(float(point['x'] * width))
-        y = int(float(point['y'] * height))
-        if x <= x1:
-            x1 = x
-        if y <= y1:
-            y1 = y
-        if x >= x2:
-            x2 = x
-        if y >= y2:
-            y2 = y
-    return x1, y1, x2, y2
 
 def get_featur(img):
     clustering_model = Sequential ()
@@ -42,81 +27,63 @@ def get_featur(img):
     return fv
 
 client = pymongo.MongoClient () # the gcp instance forwards back to da1
-db = client ['fdac19-tags']
-coll = db ['users']
-#change to your netid
-myNetId = 'anau'
-uid = coll .find_one ({'username':myNetId})['_id'];
+db = client ['fdac20-tags']
 coll = db ['tags']
 
-toProcess = {}
-for t in coll .find ({'user':uid}):
-  img = t ['image']
-  tg = t ['tag']
-  ids = t ['_id']
-  img = img .replace ("http://localhost:3000/","public/")
-  toProcess [ids] = img
 
 img_size = 224
 
 missed_imgs = []
 
-for pId in toProcess .keys ():
-  path = toProcess [pId]
-  exists = os.path.isfile(path)
-  if exists:
-    sz = os.path.getsize(path)
-    if (sz < 15000000L):
-      print (path)
-    else:
-      missed_imgs.append(path)
-      next
-  else:
-    missed_imgs.append(path)
-    next
 
-  try:
-    imf = StringIO(open(path,'rb').read())
-    bif = Binary(imf.getvalue())
-    img_object = cv2.imread (path)
-    height, width = img_object.shape[:2]
-
-    # extract all of the information for the corresponding img
-    res = coll .find_one ({'_id': pId, 'user':uid}, {"feature": 0, "imgCont": 0 } )
-    # find the coordinate for the rectangle that includes the object
-    x1, y1, x2, y2 = extract_coordinates(res, width, height)
-
-    # crop out the tag area from the img
-    cropped_img = img_object[y1:y2, x1:x2]
-    #resize the image
-    img_object = cv2.resize (cropped_img, (img_size, img_size))
-
-    # resnet featurs for the original cropped image
-    fv1 = get_featur(img_object)
-
-    # resnet featurs for the clockwise rotated cropped image
-    img_rotate_90_clockwise = cv2.rotate(img_object, cv2.ROTATE_90_CLOCKWISE)
-    fv2 = get_featur(img_rotate_90_clockwise)
-
-    # resnet featurs for the counterclockwise rotated cropped image
-    img_rotate_90_counterclockwise = cv2.rotate(img_object, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    fv3 = get_featur(img_rotate_90_counterclockwise)
+path = sys .argv[1]
+uid = sys .argv[2]
+cl1 = sys .argv[3]
+cl2 = sys .argv[4]
 
 
-    # resnet featurs for the 180 rotated cropped image
-    img_rotate_180 = cv2.rotate(img_object, cv2.ROTATE_180)
-    fv4 = get_featur(img_rotate_180)
+try:
+  #imf = StringIO(open(path,'rb').read())
+  #bif = Binary(imf.getvalue())
+  img_object = cv2.imread (path)
+  img_object = cv2.resize(img_object, (img_size, img_size))
+  #height, width = img_object.shape[:2]
+  print ("here")
 
-    # resnet featurs for flipped up cropped image
-    img_flip_ud = cv2.flip(img_object, 0)
-    fv5 = get_featur(img_flip_ud)
+  # find the coordinate for the rectangle that includes the object
+  #x1, y1, x2, y2 = extract_coordinates(img_object, width, height)
 
-    # resnet featurs for flipped lr cropped image
-    img_flip_lr = cv2.flip(img_object, 1)
-    fv6 = get_featur(img_flip_lr)
+  # resnet featurs for the original cropped image
+  print ("fv0") 
+  fv1 = get_featur(img_object)
+  print ("fv1") 
+  # resnet featurs for the clockwise rotated cropped image
+  img_rotate_90_clockwise = cv2.rotate(img_object, cv2.ROTATE_90_CLOCKWISE)
+  fv2 = get_featur(img_rotate_90_clockwise)
 
-    res2 = coll.update_one ({'_id': pId, 'user':uid}, { "$set" : {"feature": fv1,"feature2": fv2 ,"feature3": fv3, "feature4": fv4,"feature5": fv5,"feature6": fv6,"imgCont": bif} } )
+  print ("fv2")
+  # resnet featurs for the counterclockwise rotated cropped image
+  img_rotate_90_counterclockwise = cv2.rotate(img_object, cv2.ROTATE_90_COUNTERCLOCKWISE)
+  fv3 = get_featur(img_rotate_90_counterclockwise)
+   
+  print ("fv3")
+  # resnet featurs for the 180 rotated cropped image
+  img_rotate_180 = cv2.rotate(img_object, cv2.ROTATE_180)
+  fv4 = get_featur(img_rotate_180)
 
-  except Exception as e:
-    print (e)
-    missed_imgs.append(path)
+  print ("fv4")
+  # resnet featurs for flipped up cropped image
+  img_flip_ud = cv2.flip(img_object, 0)
+  fv5 = get_featur(img_flip_ud)
+
+  print ("fv5")
+  # resnet featurs for flipped lr cropped image
+  img_flip_lr = cv2.flip(img_object, 1)
+  fv6 = get_featur(img_flip_lr)
+  
+  res2 = coll.insert_one ({'path':path, 'cl1':cl1, 'cl2':cl2, 'user':uid, "feature": fv1,"feature2": fv2 ,"feature3": fv3, "feature4": fv4,"feature5": fv5,"feature6": fv6 } )
+
+  print (path)
+except Exception as e:
+  print (e)
+  missed_imgs.append(path)
