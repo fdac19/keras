@@ -10,7 +10,7 @@ RUN apt-get update -qq \
     git openssh-client \
     dbus openssh-server lsof sudo vim wget curl lsb-release tmux zip \
     libsm6 libxext6 libfontconfig1 libxrender1 python-pip libglu1-mesa libegl1-mesa \
-    r-recommended r-base-dev r-cran-car r-cran-rcolorbrewer r-cran-fastcluster \		
+    r-recommended r-base-dev r-cran-car r-cran-caret  r-cran-randomforest r-cran-rcolorbrewer r-cran-fastcluster \		
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
